@@ -1,0 +1,17 @@
+{
+  "name": "九九モンスター 育成バトル（くくモン）",
+  "short_name": "くくモン",
+  "description": "小学2年生が楽しく九九を学べる育成バトルRPG",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#162044",
+  "theme_color": "#1f2e66",
+  "icons": [
+    {
+      "src": "assets/images/partner_2.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

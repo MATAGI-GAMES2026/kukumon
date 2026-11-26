@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="くくモン">
+  <meta name="theme-color" content="#1f2e66">
+  <title>九九モンスター 育成バトル（くくモン）</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="assets/images/partner_2.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app" class="app-shell">
+
+    <!-- ==================== ホーム画面 ==================== -->
+    <section id="home-screen" class="screen active" aria-label="ホーム画面">
+      <header class="home-header">
+        <div class="brand-area">
+          <span class="brand-badge">くくモン</span>
+          <h1 class="brand-title">九九モンスター 育成バトル</h1>
+        </div>
+        <div class="header-actions">
+          <div class="coin-pill" title="もっているコイン">
+            <span class="coin-icon">🪙</span>
+            <span id="home-coins" class="coin-value">0</span>
+          </div>
+          <button id="btn-open-shop" class="btn-header btn-shop" type="button">
+            <span>🛒</span> きょうかショップ
+          </button>
+          <button id="btn-sound-home" class="btn-header btn-sound" type="button" aria-label="おとのオンオフ">
+            🔊
+          </button>
+        </div>
+      </header>
+
+      <main class="home-main">
+        <!-- 左：相棒育成エリア -->
+        <aside class="partner-card">
+          <div class="partner-card-top">
+            <span id="partner-stage-badge" class="stage-badge">タマゴ</span>
+            <span id="partner-level-text" class="level-pill">Lv.1</span>
+          </div>
+
+          <div id="home-partner-stage" class="home-partner-stage" role="button" tabindex="0" aria-label="あいぼうをなでる">
+            <div class="partner-glow"></div>
+            <img id="home-partner-img" src="assets/images/partner_1.png" alt="あいぼうドラゴン" class="home-partner-img">
+            <div id="partner-speech" class="partner-speech">いっしょに 九九バトル しよう！</div>
+          </div>
+
+          <div class="partner-info-box">
+            <div class="exp-header">
+              <span>けいけんち</span>
+              <span id="home-exp-text">0 / 100</span>
+            </div>
+            <div class="exp-bar-track">
+              <div id="home-exp-bar" class="exp-bar-fill" style="width: 0%;"></div>
+            </div>
+            <div id="next-evo-hint" class="next-evo-hint">つぎの しんか まで あと Lv.2！</div>
+
+            <div class="stats-row">
+              <div class="stat-chip">
+                <span class="stat-label">⚔️ こうげき</span>
+                <strong id="stat-atk">24</strong>
+              </div>
+              <div class="stat-chip">
+                <span class="stat-label">❤️ ハート</span>
+                <strong id="stat-hp">3</strong>
+              </div>
+              <div class="stat-chip">
+                <span class="stat-label">⚡ かいしん</span>
+                <strong id="stat-crit">4.5びょう</strong>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- 右：ステージ選択エリア -->
+        <section class="stage-panel">
+          <div class="stage-panel-header">
+            <h2>⚔️ バトルする ステージを えらぼう！</h2>
+            <span id="home-clear-count" class="clear-count-badge">クリア 0 / 9</span>
+          </div>
+
+          <div id="dan-grid" class="dan-grid" aria-label="1の段から9の段">
+            <!-- JSで1〜9の段ボタンを生成 -->
+          </div>
+
+          <div class="special-stages">
+            <button id="btn-stage-random" class="special-stage-btn stage-random" type="button">
+              <div class="special-icon">🌲</div>
+              <div class="special-text">
+                <strong>全段ランダムの森</strong>
+                <span>1〜9の段 ぜんぶから しゅつだい！</span>
+              </div>
+              <div class="special-arrow">▶</div>
+            </button>
+
+            <button id="btn-stage-revenge" class="special-stage-btn stage-revenge" type="button">
+              <div class="special-icon">🏰</div>
+              <div class="special-text">
+                <strong>にがてリベンジの塔</strong>
+                <span id="revenge-desc">まちがえた もんだい だけ でるよ！</span>
+              </div>
+              <span id="revenge-badge" class="revenge-badge">0もん</span>
+            </button>
+          </div>
+        </section>
+      </main>
+    </section>
+
+    <!-- ==================== バトル画面 ==================== -->
+    <section id="battle-screen" class="screen" aria-label="バトル画面">
+      <!-- 上段ステータス -->
+      <header class="battle-topbar">
+        <div class="player-status">
+          <div class="partner-mini-frame">
+            <img id="battle-partner-icon" src="assets/images/partner_1.png" alt="あいぼう" class="partner-mini-img">
+          </div>
+          <div class="player-status-meta">
+            <div class="player-name-row">
+              <span id="battle-partner-name" class="battle-name">タマゴ</span>
+              <span id="battle-partner-lv" class="battle-lv">Lv.1</span>
+            </div>
+            <div id="player-hearts" class="hearts-container" aria-label="プレイヤーHP">
+              <!-- JSでハート生成 -->
+            </div>
+          </div>
+        </div>
+
+        <div class="wave-status">
+          <div id="battle-stage-title" class="battle-stage-title">1の段</div>
+          <div id="battle-wave-pills" class="wave-pills">
+            <span class="wave-pill active">1</span>
+            <span class="wave-pill">2</span>
+            <span class="wave-pill boss">BOSS</span>
+          </div>
+        </div>
+
+        <div class="enemy-status-wrap">
+          <div class="enemy-status">
+            <div class="enemy-name-row">
+              <span id="enemy-name" class="enemy-name">ちびスライム</span>
+              <span id="enemy-hp-text" class="enemy-hp-text">100 / 100</span>
+            </div>
+            <div class="enemy-hp-track">
+              <div id="enemy-hp-bar" class="enemy-hp-fill" style="width: 100%;"></div>
+            </div>
+          </div>
+          <button id="btn-sound-battle" class="btn-topbar-icon" type="button" aria-label="おとのオンオフ">🔊</button>
+          <button id="btn-pause" class="btn-pause" type="button">⏸ ストップ</button>
+        </div>
+      </header>
+
+      <!-- 中段バトルフィールド -->
+      <div id="battle-field" class="battle-field">
+        <div id="thunder-flash" class="thunder-flash"></div>
+        <div id="damage-vignette" class="damage-vignette"></div>
+
+        <!-- キャラクター配置 -->
+        <div class="actors-layer">
+          <div id="partner-actor" class="actor partner-actor">
+            <img id="battle-partner-img" src="assets/images/partner_1.png" alt="あいぼうドラゴン" class="actor-img">
+          </div>
+
+          <div id="enemy-actor" class="actor enemy-actor">
+            <div id="enemy-boss-aura" class="enemy-boss-aura hidden"></div>
+            <img id="battle-enemy-img" src="assets/images/boss_slime.png" alt="てきモンスター" class="actor-img">
+          </div>
+        </div>
+
+        <!-- 炎エフェクト（battle-field直下に配置してmix-blend-mode: screenを背景・キャラと合成） -->
+        <img id="fire-effect" src="assets/images/effect_fire.png" alt="" class="fire-effect hidden">
+
+        <!-- ダメージポップアップレイヤー（炎より手前に表示） -->
+        <div id="effects-layer" class="effects-layer">
+          <div id="damage-popup-container" class="damage-popup-container"></div>
+        </div>
+
+        <!-- 数式パネル（中央下部） -->
+        <div class="question-panel-wrap">
+          <div id="question-panel" class="question-panel">
+            <div class="panel-deco panel-deco-left">🔥</div>
+            <div class="question-main">
+              <span id="q-left" class="q-num">7</span>
+              <span class="q-op">×</span>
+              <span id="q-right" class="q-num">8</span>
+              <span class="q-eq">＝</span>
+              <div id="answer-box" class="answer-box" aria-live="polite"></div>
+            </div>
+            <div class="panel-deco panel-deco-right">⚡</div>
+          </div>
+
+          <div class="crit-timer-wrap">
+            <span class="crit-label">⚡ かいしんタイム</span>
+            <div class="crit-bar-track">
+              <div id="crit-bar-fill" class="crit-bar-fill" style="width: 100%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 不正解フォローバナー -->
+        <div id="wrong-overlay" class="wrong-overlay hidden" role="alert">
+          <div class="wrong-card">
+            <div class="wrong-badge">おしい！ おぼえよう！</div>
+            <div id="wrong-formula" class="wrong-formula">7 × 8 ＝ 56 だよ！</div>
+            <div class="wrong-sub">🏰 にがてリベンジ に とうろくしたよ</div>
+            <button id="btn-wrong-ok" class="btn-wrong-ok" type="button">つぎへ ▶</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 下段操作パネル（最下部固定） -->
+      <footer class="control-deck">
+        <div class="action-row">
+          <div class="action-left">
+            <button id="btn-clear" class="btn-action btn-clear" type="button">
+              ⌫ けす
+            </button>
+            <button id="btn-attack" class="btn-action btn-attack" type="button">
+              🔥 こうげき！
+            </button>
+          </div>
+
+          <div class="action-right">
+            <button id="btn-help" class="btn-special btn-help" type="button">
+              <span class="special-btn-title">💡 おたすけ</span>
+              <span id="help-count-text" class="special-btn-sub">あと 2かい</span>
+            </button>
+
+            <button id="btn-special" class="btn-special btn-ultimate" type="button" disabled>
+              <span class="special-btn-title">🌈 ひっさつわざ！</span>
+              <span id="special-charge-text" class="special-btn-sub">0 / 5 れんぞく</span>
+              <div class="ultimate-bar-track">
+                <div id="ultimate-bar-fill" class="ultimate-bar-fill" style="width: 0%;"></div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <div class="numpad-row" role="group" aria-label="すうじボタン">
+          <button class="num-btn" data-digit="1" type="button">1</button>
+          <button class="num-btn" data-digit="2" type="button">2</button>
+          <button class="num-btn" data-digit="3" type="button">3</button>
+          <button class="num-btn" data-digit="4" type="button">4</button>
+          <button class="num-btn" data-digit="5" type="button">5</button>
+          <button class="num-btn" data-digit="6" type="button">6</button>
+          <button class="num-btn" data-digit="7" type="button">7</button>
+          <button class="num-btn" data-digit="8" type="button">8</button>
+          <button class="num-btn" data-digit="9" type="button">9</button>
+          <button class="num-btn" data-digit="0" type="button">0</button>
+        </div>
+      </footer>
+    </section>
+
+    <!-- ==================== モーダル群 ==================== -->
+
+    <!-- きょうかショップモーダル -->
+    <div id="shop-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="shop-title">
+      <div class="modal-card modal-shop">
+        <div class="modal-header">
+          <h2 id="shop-title">🛒 きょうかショップ</h2>
+          <div class="coin-pill">
+            <span class="coin-icon">🪙</span>
+            <span id="shop-coins" class="coin-value">0</span>
+          </div>
+        </div>
+        <div id="shop-items" class="shop-items">
+          <!-- JSで強化アイテムを生成 -->
+        </div>
+        <div class="modal-footer">
+          <button id="btn-close-shop" class="btn-modal-primary" type="button">とじる</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- おたすけヒントモーダル -->
+    <div id="help-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="help-title">
+      <div class="modal-card modal-help">
+        <div class="modal-header">
+          <h2 id="help-title">💡 おたすけヒント</h2>
+          <span id="help-formula-badge" class="help-formula-badge">7 × 8</span>
+        </div>
+        <div class="help-body">
+          <div id="help-addition-box" class="help-addition-box">
+            <!-- 足し算ヒント -->
+          </div>
+          <div class="help-dots-section">
+            <div id="help-dots-caption" class="help-dots-caption">7こ ずつ が 8れつ あるよ！かぞえてみよう！</div>
+            <div id="help-dots-grid" class="help-dots-grid">
+              <!-- ●のドット配列 -->
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-close-help" class="btn-modal-primary" type="button">わかった！ バトルにもどる</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 一時停止モーダル -->
+    <div id="pause-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="pause-title">
+      <div class="modal-card modal-compact">
+        <h2 id="pause-title">⏸ きゅうけいちゅう</h2>
+        <p class="modal-desc">すこし やすんでから つづけよう！</p>
+        <div class="modal-btn-stack">
+          <button id="btn-resume" class="btn-modal-primary" type="button">▶ バトルをつづける</button>
+          <button id="btn-quit-battle" class="btn-modal-secondary" type="button">🏠 ホームにもどる</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- リザルト（勝利・敗北・進化）モーダル -->
+    <div id="result-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="result-title">
+      <div class="modal-card modal-result">
+        <h2 id="result-title" class="result-title">🎉 ステージ クリア！</h2>
+        <div id="result-evo-banner" class="result-evo-banner hidden">
+          <div class="evo-sparkle">✨ しんか おめでとう！ ✨</div>
+          <img id="result-evo-img" src="assets/images/partner_2.png" alt="しんかしたあいぼう" class="result-evo-img">
+          <div id="result-evo-text" class="evo-name-text">チビドラ に しんかしたよ！</div>
+        </div>
+        <div class="result-rewards">
+          <div class="reward-box">
+            <span class="reward-label">けいけんち</span>
+            <strong id="result-exp">+80 EXP</strong>
+          </div>
+          <div class="reward-box">
+            <span class="reward-label">コイン</span>
+            <strong id="result-coins">+40 🪙</strong>
+          </div>
+          <div class="reward-box">
+            <span class="reward-label">せいかいりつ</span>
+            <strong id="result-acc">100%</strong>
+          </div>
+        </div>
+        <div id="result-levelup-note" class="result-levelup-note hidden">⭐ レベルアップ！ さらにつよくなったよ！</div>
+        <div class="modal-footer result-actions">
+          <button id="btn-result-retry" class="btn-modal-secondary" type="button">🔄 もういちど</button>
+          <button id="btn-result-home" class="btn-modal-primary" type="button">🏠 ホームへ</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- トースト通知 -->
+    <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
